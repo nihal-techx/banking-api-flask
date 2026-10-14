@@ -36,6 +36,7 @@ Pygments==2.21.0
 PyJWT==2.15.1
 pytest==9.1.1
 python-dotenv==1.2.4
+redis==8.1.0
 SQLAlchemy==2.1.4
 typing-inspection==0.4.4
 typing_extensions==4.16.0

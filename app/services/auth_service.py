@@ -34,12 +34,13 @@ def authenticate(email: str, password: str) -> User:
     return user
 
 
-def issue_tokens(user: User) -> TokenOut:
+def issue_tokens(user: User, family_id: str | None = None) -> TokenOut:
     identity = str(user.id)
+    claims = {"fid": family_id or uuid.uuid4().hex}
     expires = current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]
     return TokenOut(
-        access_token=create_access_token(identity=identity),
-        refresh_token=create_refresh_token(identity=identity),
+        access_token=create_access_token(identity=identity, additional_claims=claims),
+        refresh_token=create_refresh_token(identity=identity, additional_claims=claims),
         expires_in=int(expires.total_seconds()),
     )
 

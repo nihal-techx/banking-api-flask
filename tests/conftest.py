@@ -2,7 +2,7 @@ import pytest
 
 from app import create_app
 from app.config import TestingConfig
-from app.extensions import db
+from app.extensions import db, redis_ext
 
 
 @pytest.fixture(scope="session")
@@ -23,6 +23,7 @@ def clean_db(app):
         for table in reversed(db.metadata.sorted_tables):
             db.session.execute(table.delete())
         db.session.commit()
+    redis_ext.client.flushdb()
 
 
 @pytest.fixture
