@@ -36,3 +36,22 @@ def db_session(app):
     with app.app_context():
         yield db.session
         db.session.rollback()
+
+
+@pytest.fixture
+def signup(client):
+    """Register + log in a user; returns ready-to-use auth headers."""
+
+    def _signup(username):
+        creds = {
+            "email": f"{username}@example.com",
+            "username": username,
+            "password": "s3cret-pass-1",
+        }
+        assert client.post("/auth/register", json=creds).status_code == 201
+        login = client.post(
+            "/auth/login", json={"email": creds["email"], "password": creds["password"]}
+        )
+        return {"Authorization": f"Bearer {login.get_json()['access_token']}"}
+
+    return _signup
