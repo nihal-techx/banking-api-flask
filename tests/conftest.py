@@ -16,6 +16,15 @@ def app():
         db.drop_all()
 
 
+@pytest.fixture(autouse=True)
+def clean_db(app):
+    yield
+    with app.app_context():
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
+
+
 @pytest.fixture
 def client(app):
     return app.test_client()
@@ -26,6 +35,3 @@ def db_session(app):
     with app.app_context():
         yield db.session
         db.session.rollback()
-        for table in reversed(db.metadata.sorted_tables):
-            db.session.execute(table.delete())
-        db.session.commit()
