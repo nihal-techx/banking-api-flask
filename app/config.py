@@ -24,3 +24,4 @@ class TestingConfig(Config):
         "TEST_DATABASE_URL",
         "postgresql+psycopg://bank:bank@localhost:5434/banking_test",
     )
+    REDIS_URL = os.getenv("TEST_REDIS_URL", "redis://localhost:6381/1")
