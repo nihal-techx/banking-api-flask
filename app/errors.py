@@ -23,6 +23,11 @@ class AuthenticationError(AppError):
     code = "unauthorized"
 
 
+class NotFoundError(AppError):
+    status_code = 404
+    code = "not_found"
+
+
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
     response.status_code = status
