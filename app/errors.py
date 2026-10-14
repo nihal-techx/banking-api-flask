@@ -17,6 +17,11 @@ class ConflictError(AppError):
     code = "conflict"
 
 
+class AuthenticationError(AppError):
+    status_code = 401
+    code = "unauthorized"
+
+
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
     response.status_code = status
@@ -41,3 +46,17 @@ def register_error_handlers(app):
     def handle_http_error(err):
         code = err.name.lower().replace(" ", "_")
         return _error_response(err.code, code, err.description)
+
+
+def register_jwt_error_handlers(jwt):
+    @jwt.unauthorized_loader
+    def missing_token(reason):
+        return _error_response(401, "missing_token", "Authentication required")
+
+    @jwt.invalid_token_loader
+    def invalid_token(reason):
+        return _error_response(401, "invalid_token", "Invalid token")
+
+    @jwt.expired_token_loader
+    def expired_token(jwt_header, jwt_payload):
+        return _error_response(401, "token_expired", "Token has expired")
