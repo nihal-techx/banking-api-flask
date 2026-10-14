@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -6,6 +8,11 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+    JWT_SECRET_KEY = os.getenv(
+        "JWT_SECRET_KEY", "dev-only-jwt-secret-change-me-32-bytes-min"
+    )
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     REDIS_URL = os.getenv("REDIS_URL")
     RABBITMQ_URL = os.getenv("RABBITMQ_URL")
