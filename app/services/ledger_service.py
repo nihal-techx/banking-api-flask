@@ -1,14 +1,19 @@
 import uuid
 from dataclasses import dataclass
 
-from sqlalchemy import case, func, select
+from flask import current_app
+from sqlalchemy import case, func, select, text
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import OperationalError
 
-from app.errors import InsufficientFundsError
+from app.errors import InsufficientFundsError, ServiceBusyError
 from app.extensions import db
 from app.models import Account, LedgerEntry, Transaction
 
 SETTLEMENT = "SETTLEMENT"
+
+_LOCK_NOT_AVAILABLE = "55P03"  # lock_timeout expired
+_DEADLOCK_DETECTED = "40P01"
 
 
 class LedgerError(Exception):
@@ -53,20 +58,37 @@ def _validate(entries: list[Entry]) -> None:
         raise LedgerError("Debits must equal credits")
 
 
+def _lock_accounts(ids: list[uuid.UUID]) -> dict[uuid.UUID, Account]:
+    """Lock rows in ID order (prevents deadlocks) and fail fast if a lock is
+    unavailable (prevents pile-ups behind a stuck transaction)."""
+    timeout_ms = int(current_app.config["LEDGER_LOCK_TIMEOUT_MS"])
+    # set_config(..., true) is SET LOCAL: it lasts only until this transaction ends.
+    db.session.execute(
+        text("SELECT set_config('lock_timeout', :value, true)"),
+        {"value": f"{timeout_ms}ms"},
+    )
+    try:
+        rows = db.session.scalars(
+            select(Account)
+            .where(Account.id.in_(ids))
+            .order_by(Account.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)  # refresh stale identity-map objects
+        ).all()
+    except OperationalError as exc:
+        if getattr(exc.orig, "sqlstate", None) in (_LOCK_NOT_AVAILABLE, _DEADLOCK_DETECTED):
+            raise ServiceBusyError("Account is busy, please retry") from exc
+        raise
+    return {account.id: account for account in rows}
+
+
 def post_transaction(txn_type: str, entries: list[Entry], description: str | None = None) -> Transaction:
     """Post a balanced set of entries. The ONLY code that writes balances.
     Never commits: the caller owns the transaction boundary."""
     _validate(entries)
 
-    ids = sorted({e.account_id for e in entries})  # fixed lock order prevents deadlocks
-    locked = db.session.scalars(
-        select(Account)
-        .where(Account.id.in_(ids))
-        .order_by(Account.id)
-        .with_for_update()
-        .execution_options(populate_existing=True)  # refresh stale identity-map objects
-    )
-    accounts = {account.id: account for account in locked}
+    ids = sorted({e.account_id for e in entries})
+    accounts = _lock_accounts(ids)
     if len(accounts) != len(ids):
         raise LedgerError("Posting references an unknown account")
     if len({account.currency for account in accounts.values()}) != 1:

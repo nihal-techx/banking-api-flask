@@ -55,3 +55,33 @@ def signup(client):
         return {"Authorization": f"Bearer {login.get_json()['access_token']}"}
 
     return _signup
+
+
+@pytest.fixture
+def run_concurrently(app):
+    """Run callables in parallel threads, each with its own app context (own DB session).
+    workers=None releases all jobs at once through a barrier, to maximize overlap.
+    Returns a list of ("ok", result) or ("error", exception)."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    def _run(jobs, workers=None):
+        barrier = threading.Barrier(len(jobs)) if workers is None else None
+
+        def wrap(job):
+            def runner():
+                with app.app_context():
+                    if barrier is not None:
+                        barrier.wait(timeout=10)
+                    try:
+                        return ("ok", job())
+                    except Exception as exc:
+                        return ("error", exc)
+
+            return runner
+
+        with ThreadPoolExecutor(max_workers=workers or len(jobs)) as pool:
+            futures = [pool.submit(wrap(job)) for job in jobs]
+            return [future.result(timeout=60) for future in futures]
+
+    return _run
