@@ -1,4 +1,4 @@
-from app.api import accounts, auth, health, transfers
+from app.api import accounts, auth, health, history, transfers
 
 
 def register_blueprints(app):
@@ -6,3 +6,4 @@ def register_blueprints(app):
     app.register_api(auth.bp)
     app.register_api(accounts.bp)
     app.register_api(transfers.bp)
+    app.register_api(history.bp)

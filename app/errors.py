@@ -43,6 +43,16 @@ class IdempotencyKeyReuseError(AppError):
     code = "idempotency_key_reuse"
 
 
+class ServiceBusyError(AppError):
+    status_code = 503
+    code = "busy"
+
+
+class InvalidCursorError(AppError):
+    status_code = 422
+    code = "invalid_cursor"
+
+
 
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
@@ -105,6 +115,4 @@ def register_jwt_revocation(jwt):
         return _error_response(401, "token_revoked", "Token has been revoked")
 
 
-class ServiceBusyError(AppError):
-    status_code = 503
-    code = "busy"
+
