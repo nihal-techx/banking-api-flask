@@ -3,6 +3,7 @@ import uuid
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from flask_openapi3 import APIBlueprint, Tag
 
+from app.api.idempotency import run_idempotent
 from app.schemas.accounts import (
     AccountListOut,
     AccountOut,
@@ -62,11 +63,21 @@ def get_account(path: AccountPath):
 
 @bp.post("/accounts/<account_id>/deposits", responses={"201": TransactionOut})
 def create_deposit(path: AccountPath, body: AmountBody):
-    entry = money_service.deposit(current_user_id(), path.account_id, body.amount)
-    return posting_response(entry), 201
+    def operation(commit):
+        entry = money_service.deposit(
+            current_user_id(), path.account_id, body.amount, commit=commit
+        )
+        return posting_response(entry)
+
+    return run_idempotent(operation, body.model_dump(mode="json"))
 
 
 @bp.post("/accounts/<account_id>/withdrawals", responses={"201": TransactionOut})
 def create_withdrawal(path: AccountPath, body: AmountBody):
-    entry = money_service.withdraw(current_user_id(), path.account_id, body.amount)
-    return posting_response(entry), 201
+    def operation(commit):
+        entry = money_service.withdraw(
+            current_user_id(), path.account_id, body.amount, commit=commit
+        )
+        return posting_response(entry)
+
+    return run_idempotent(operation, body.model_dump(mode="json"))

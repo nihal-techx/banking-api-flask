@@ -33,6 +33,17 @@ class InsufficientFundsError(AppError):
     code = "insufficient_funds"
 
 
+class IdempotencyKeyError(AppError):
+    status_code = 400
+    code = "invalid_idempotency_key"
+
+
+class IdempotencyKeyReuseError(AppError):
+    status_code = 422
+    code = "idempotency_key_reuse"
+
+
+
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
     response.status_code = status
