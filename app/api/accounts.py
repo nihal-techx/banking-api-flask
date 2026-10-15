@@ -9,7 +9,8 @@ from app.schemas.accounts import (
     AccountPath,
     CreateAccountBody,
 )
-from app.services import account_service
+from app.schemas.money import AmountBody, TransactionOut
+from app.services import account_service, money_service
 
 bp = APIBlueprint(
     "accounts",
@@ -26,6 +27,17 @@ def require_auth():
 
 def current_user_id() -> uuid.UUID:
     return uuid.UUID(get_jwt_identity())
+
+
+def posting_response(entry):
+    return TransactionOut(
+        transaction_id=entry.transaction_id,
+        type=entry.transaction.type,
+        account_id=entry.account_id,
+        amount=entry.amount,
+        balance_after=entry.balance_after,
+        created_at=entry.created_at,
+    ).model_dump(mode="json")
 
 
 @bp.post("/accounts", responses={"201": AccountOut})
@@ -46,3 +58,15 @@ def list_accounts():
 def get_account(path: AccountPath):
     account = account_service.get_owned_account(current_user_id(), path.account_id)
     return AccountOut.model_validate(account).model_dump(mode="json")
+
+
+@bp.post("/accounts/<account_id>/deposits", responses={"201": TransactionOut})
+def create_deposit(path: AccountPath, body: AmountBody):
+    entry = money_service.deposit(current_user_id(), path.account_id, body.amount)
+    return posting_response(entry), 201
+
+
+@bp.post("/accounts/<account_id>/withdrawals", responses={"201": TransactionOut})
+def create_withdrawal(path: AccountPath, body: AmountBody):
+    entry = money_service.withdraw(current_user_id(), path.account_id, body.amount)
+    return posting_response(entry), 201
