@@ -28,6 +28,11 @@ class NotFoundError(AppError):
     code = "not_found"
 
 
+class InsufficientFundsError(AppError):
+    status_code = 422
+    code = "insufficient_funds"
+
+
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
     response.status_code = status
