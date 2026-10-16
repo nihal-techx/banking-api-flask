@@ -3,6 +3,7 @@ import uuid
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from flask_openapi3 import APIBlueprint, Tag
 
+from app.api.docs import api_responses
 from app.schemas.accounts import AccountPath
 from app.schemas.history import (
     StatementItem,
@@ -43,8 +44,17 @@ def to_item(row) -> StatementItem:
     )
 
 
-@bp.get("/accounts/<account_id>/transactions", responses={"200": StatementOut})
+@bp.get(
+    "/accounts/<account_id>/transactions",
+    responses=api_responses({"200": StatementOut}, "404", "422"),
+)
 def account_statement(path: AccountPath, query: StatementQuery):
+    """Account statement
+
+    Newest first, with the running balance on every row. Paginated with an opaque
+    cursor: pass `next_cursor` from the previous page as `cursor`. A null
+    `next_cursor` means there are no more pages.
+    """
     rows, next_cursor = history_service.get_statement(
         current_user_id(), path.account_id, query.limit, query.cursor
     )
@@ -53,8 +63,15 @@ def account_statement(path: AccountPath, query: StatementQuery):
     ).model_dump(mode="json")
 
 
-@bp.get("/transactions/<transaction_id>", responses={"200": TransactionDetailOut})
+@bp.get(
+    "/transactions/<transaction_id>",
+    responses=api_responses({"200": TransactionDetailOut}, "404", "422"),
+)
 def transaction_detail(path: TransactionPath):
+    """Transaction detail
+
+    Returns only your side of the transaction. Returns 404 if you were not a party to it.
+    """
     rows = history_service.get_transaction(current_user_id(), path.transaction_id)
     first_entry, txn_type, _ = rows[0]
     return TransactionDetailOut(

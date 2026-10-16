@@ -2,6 +2,7 @@ from flask_openapi3 import Info, OpenAPI
 
 from app import models, tasks  # noqa: F401  (register models and Celery tasks)
 from app.api import register_blueprints
+from app.api.docs import API_DESCRIPTION
 from app.celery_app import init_celery
 from app.cli import register_cli
 from app.config import Config
@@ -19,7 +20,7 @@ SECURITY_SCHEMES = {"jwt": {"type": "http", "scheme": "bearer", "bearerFormat": 
 def create_app(config_object=None):
     app = OpenAPI(
         __name__,
-        info=Info(title="Banking API", version="0.1.0"),
+        info=Info(title="Banking API", version="1.0.0", description=API_DESCRIPTION),
         security_schemes=SECURITY_SCHEMES,
         validation_error_callback=validation_error_response,
     )
