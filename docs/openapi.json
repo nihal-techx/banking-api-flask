@@ -1,0 +1,1574 @@
+{
+    "components": {
+        "schemas": {
+            "AccountListOut": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/AccountOut"
+                        },
+                        "title": "Items",
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "items"
+                ],
+                "title": "AccountListOut",
+                "type": "object"
+            },
+            "AccountOut": {
+                "properties": {
+                    "account_type": {
+                        "title": "Account Type",
+                        "type": "string"
+                    },
+                    "balance": {
+                        "title": "Balance",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "currency": {
+                        "title": "Currency",
+                        "type": "string"
+                    },
+                    "id": {
+                        "format": "uuid",
+                        "title": "Id",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "account_type",
+                    "balance",
+                    "currency",
+                    "created_at"
+                ],
+                "title": "AccountOut",
+                "type": "object"
+            },
+            "AmountBody": {
+                "additionalProperties": false,
+                "properties": {
+                    "amount": {
+                        "description": "Amount in paise (1 rupee = 100 paise). 10000 is INR 100.00.",
+                        "exclusiveMinimum": 0.0,
+                        "maximum": 1000000000,
+                        "title": "Amount",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount"
+                ],
+                "title": "AmountBody",
+                "type": "object"
+            },
+            "CreateAccountBody": {
+                "additionalProperties": false,
+                "properties": {
+                    "account_type": {
+                        "enum": [
+                            "savings",
+                            "current"
+                        ],
+                        "title": "Account Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "account_type"
+                ],
+                "title": "CreateAccountBody",
+                "type": "object"
+            },
+            "ErrorBody": {
+                "properties": {
+                    "code": {
+                        "description": "Stable machine-readable error code. Branch on this, not on the message.",
+                        "title": "Code",
+                        "type": "string"
+                    },
+                    "details": {
+                        "description": "Per-field problems. Non-empty for validation errors only.",
+                        "items": {
+                            "$ref": "#/components/schemas/ErrorDetail"
+                        },
+                        "title": "Details",
+                        "type": "array"
+                    },
+                    "message": {
+                        "description": "Human-readable explanation. May change between releases.",
+                        "title": "Message",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "message"
+                ],
+                "title": "ErrorBody",
+                "type": "object"
+            },
+            "ErrorDetail": {
+                "properties": {
+                    "field": {
+                        "description": "Dotted path of the offending request field.",
+                        "title": "Field",
+                        "type": "string"
+                    },
+                    "message": {
+                        "title": "Message",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "field",
+                    "message"
+                ],
+                "title": "ErrorDetail",
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/ErrorBody"
+                    }
+                },
+                "required": [
+                    "error"
+                ],
+                "title": "ErrorResponse",
+                "type": "object"
+            },
+            "LoginBody": {
+                "properties": {
+                    "email": {
+                        "format": "email",
+                        "title": "Email",
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "title": "Password",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "title": "LoginBody",
+                "type": "object"
+            },
+            "RegisterBody": {
+                "properties": {
+                    "email": {
+                        "format": "email",
+                        "title": "Email",
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 128,
+                        "minLength": 8,
+                        "title": "Password",
+                        "type": "string"
+                    },
+                    "username": {
+                        "pattern": "^[A-Za-z0-9_]{3,30}$",
+                        "title": "Username",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "username",
+                    "password"
+                ],
+                "title": "RegisterBody",
+                "type": "object"
+            },
+            "StatementItem": {
+                "properties": {
+                    "amount": {
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "balance_after": {
+                        "title": "Balance After",
+                        "type": "integer"
+                    },
+                    "counterparty_account_id": {
+                        "anyOf": [
+                            {
+                                "format": "uuid",
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Counterparty Account Id"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "direction": {
+                        "title": "Direction",
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "format": "uuid",
+                        "title": "Transaction Id",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "transaction_id",
+                    "type",
+                    "direction",
+                    "amount",
+                    "balance_after",
+                    "counterparty_account_id",
+                    "created_at"
+                ],
+                "title": "StatementItem",
+                "type": "object"
+            },
+            "StatementOut": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/StatementItem"
+                        },
+                        "title": "Items",
+                        "type": "array"
+                    },
+                    "next_cursor": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Next Cursor"
+                    }
+                },
+                "required": [
+                    "items",
+                    "next_cursor"
+                ],
+                "title": "StatementOut",
+                "type": "object"
+            },
+            "TokenOut": {
+                "properties": {
+                    "access_token": {
+                        "title": "Access Token",
+                        "type": "string"
+                    },
+                    "expires_in": {
+                        "title": "Expires In",
+                        "type": "integer"
+                    },
+                    "refresh_token": {
+                        "title": "Refresh Token",
+                        "type": "string"
+                    },
+                    "token_type": {
+                        "default": "bearer",
+                        "title": "Token Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "access_token",
+                    "refresh_token",
+                    "expires_in"
+                ],
+                "title": "TokenOut",
+                "type": "object"
+            },
+            "TransactionDetailOut": {
+                "properties": {
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "entries": {
+                        "items": {
+                            "$ref": "#/components/schemas/StatementItem"
+                        },
+                        "title": "Entries",
+                        "type": "array"
+                    },
+                    "transaction_id": {
+                        "format": "uuid",
+                        "title": "Transaction Id",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "transaction_id",
+                    "type",
+                    "created_at",
+                    "entries"
+                ],
+                "title": "TransactionDetailOut",
+                "type": "object"
+            },
+            "TransactionOut": {
+                "properties": {
+                    "account_id": {
+                        "format": "uuid",
+                        "title": "Account Id",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "description": "Amount in paise (1 rupee = 100 paise). 10000 is INR 100.00.",
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "balance_after": {
+                        "description": "Balance of this account right after the transaction, in paise.",
+                        "title": "Balance After",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "format": "uuid",
+                        "title": "Transaction Id",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "deposit, withdrawal or transfer.",
+                        "title": "Type",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "transaction_id",
+                    "type",
+                    "account_id",
+                    "amount",
+                    "balance_after",
+                    "created_at"
+                ],
+                "title": "TransactionOut",
+                "type": "object"
+            },
+            "TransferBody": {
+                "additionalProperties": false,
+                "properties": {
+                    "amount": {
+                        "description": "Amount in paise (1 rupee = 100 paise). 10000 is INR 100.00.",
+                        "exclusiveMinimum": 0.0,
+                        "maximum": 1000000000,
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "from_account_id": {
+                        "description": "One of your own accounts.",
+                        "format": "uuid",
+                        "title": "From Account Id",
+                        "type": "string"
+                    },
+                    "to_account_id": {
+                        "description": "Any customer account.",
+                        "format": "uuid",
+                        "title": "To Account Id",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "from_account_id",
+                    "to_account_id",
+                    "amount"
+                ],
+                "title": "TransferBody",
+                "type": "object"
+            },
+            "TransferOut": {
+                "properties": {
+                    "amount": {
+                        "description": "Amount in paise (1 rupee = 100 paise). 10000 is INR 100.00.",
+                        "title": "Amount",
+                        "type": "integer"
+                    },
+                    "balance_after": {
+                        "description": "The sender's balance right after the transfer, in paise.",
+                        "title": "Balance After",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "from_account_id": {
+                        "format": "uuid",
+                        "title": "From Account Id",
+                        "type": "string"
+                    },
+                    "to_account_id": {
+                        "format": "uuid",
+                        "title": "To Account Id",
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "format": "uuid",
+                        "title": "Transaction Id",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "transaction_id",
+                    "from_account_id",
+                    "to_account_id",
+                    "amount",
+                    "balance_after",
+                    "created_at"
+                ],
+                "title": "TransferOut",
+                "type": "object"
+            },
+            "UserOut": {
+                "properties": {
+                    "created_at": {
+                        "format": "date-time",
+                        "title": "Created At",
+                        "type": "string"
+                    },
+                    "email": {
+                        "title": "Email",
+                        "type": "string"
+                    },
+                    "id": {
+                        "format": "uuid",
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "username": {
+                        "title": "Username",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "username",
+                    "created_at"
+                ],
+                "title": "UserOut",
+                "type": "object"
+            },
+            "ValidationErrorModel": {
+                "properties": {
+                    "ctx": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "default": null,
+                        "description": "An optional object which contains values required to render the error message.",
+                        "title": "Error context"
+                    },
+                    "input": {
+                        "description": "The input provided for validation.",
+                        "title": "Input"
+                    },
+                    "loc": {
+                        "description": "The error's location as a list.",
+                        "items": {},
+                        "title": "Location",
+                        "type": "array"
+                    },
+                    "msg": {
+                        "description": "A human readable explanation of the error.",
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "A computer-readable identifier of the error type.",
+                        "title": "Error Type",
+                        "type": "string"
+                    },
+                    "url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "default": null,
+                        "description": "The URL to further information about the error.",
+                        "title": "URL"
+                    }
+                },
+                "required": [
+                    "type",
+                    "loc",
+                    "msg",
+                    "input"
+                ],
+                "title": "ValidationErrorModel",
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "jwt": {
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+                "type": "http"
+            }
+        }
+    },
+    "info": {
+        "description": "\nA banking API: accounts, deposits, withdrawals and transfers on a double-entry ledger.\n\n## Money\nAll amounts are **integers in paise** (1 rupee = 100 paise): `10000` means INR 100.00.\nFloats and numeric strings are rejected. Balances can never go negative, and every\nmovement is recorded as balanced debit and credit ledger entries.\n\n## Authentication\nSend `Authorization: Bearer <access_token>`. Access tokens last 15 minutes. Use\n`POST /auth/refresh` with the refresh token to get a new pair. Refresh tokens are\nsingle-use: replaying one revokes the whole session.\n\n## Idempotency and retries\nEndpoints that move money accept an `Idempotency-Key` header (any unique string up to\n255 characters, such as a UUID). Retrying a request with the same key returns the\noriginal response, with the header `Idempotent-Replayed: true`, and never moves money\ntwice. Reusing a key with a different request returns `idempotency_key_reuse`. A request\nthat fails (for example with `insufficient_funds`) does not consume its key.\nAfter a timeout or a `503`, retry the same request with the same key, using\nexponential backoff.\n\n## Errors\nEvery error has the same shape: `{\"error\": {\"code\", \"message\", \"details\"}}`.\nBranch on `code`, not on `message`. Framework-level errors (unknown URL, wrong method)\nuse the same shape with codes such as `not_found` and `method_not_allowed`.\n\n| Status | Codes | Meaning |\n|---|---|---|\n| 400 | `invalid_idempotency_key` | The `Idempotency-Key` header is empty, too long, or required and missing. |\n| 401 | `unauthorized`, `missing_token`, `invalid_token`, `token_expired`, `token_revoked` | Bad credentials, or a missing, malformed, expired or revoked token. |\n| 404 | `not_found` | The resource does not exist or is not yours. The two are indistinguishable by design. |\n| 409 | `conflict` | The email or username is already registered. |\n| 422 | `validation_error`, `insufficient_funds`, `idempotency_key_reuse`, `invalid_cursor` | The request is well-formed but cannot be processed. |\n| 503 | `busy`, `service_unavailable` | Temporary. Retry with exponential backoff. |\n",
+        "title": "Banking API",
+        "version": "1.0.0"
+    },
+    "openapi": "3.1.0",
+    "paths": {
+        "/accounts": {
+            "get": {
+                "operationId": "accounts_list_accounts_accounts_get",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountListOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "List your accounts",
+                "tags": [
+                    "accounts"
+                ]
+            },
+            "post": {
+                "description": "<br/>Accounts always open with a zero balance. The owner is the authenticated user,<br/>and the request cannot set a balance or an owner.",
+                "operationId": "accounts_create_account_accounts_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccountBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Open an account",
+                "tags": [
+                    "accounts"
+                ]
+            }
+        },
+        "/accounts/{account_id}": {
+            "get": {
+                "description": "<br/>Returns 404 both when the account does not exist and when it belongs to someone else.",
+                "operationId": "accounts_get_account_accounts__account_id__get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "account_id",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "title": "Account Id",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Get one account",
+                "tags": [
+                    "accounts"
+                ]
+            }
+        },
+        "/accounts/{account_id}/deposits": {
+            "post": {
+                "description": "<br/>Credits the account. Safe to retry with an `Idempotency-Key`.",
+                "operationId": "accounts_create_deposit_accounts__account_id__deposits_post",
+                "parameters": [
+                    {
+                        "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                        "in": "header",
+                        "name": "Idempotency-Key",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                            "title": "Idempotency-Key"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "account_id",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "title": "Account Id",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmountBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Deposit money",
+                "tags": [
+                    "accounts"
+                ]
+            }
+        },
+        "/accounts/{account_id}/transactions": {
+            "get": {
+                "description": "<br/>Newest first, with the running balance on every row. Paginated with an opaque<br/>cursor: pass `next_cursor` from the previous page as `cursor`. A null<br/>`next_cursor` means there are no more pages.",
+                "operationId": "history_account_statement_accounts__account_id__transactions_get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "account_id",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "title": "Account Id",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "required": false,
+                        "schema": {
+                            "default": 20,
+                            "maximum": 100,
+                            "minimum": 1.0,
+                            "title": "Limit",
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "maxLength": 200,
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "title": "Cursor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatementOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Account statement",
+                "tags": [
+                    "history"
+                ]
+            }
+        },
+        "/accounts/{account_id}/withdrawals": {
+            "post": {
+                "description": "<br/>Debits the account. Returns `insufficient_funds` (422) if the balance is too low.<br/>Safe to retry with an `Idempotency-Key`.",
+                "operationId": "accounts_create_withdrawal_accounts__account_id__withdrawals_post",
+                "parameters": [
+                    {
+                        "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                        "in": "header",
+                        "name": "Idempotency-Key",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                            "title": "Idempotency-Key"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "account_id",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "title": "Account Id",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmountBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Withdraw money",
+                "tags": [
+                    "accounts"
+                ]
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "<br/>Returns a short-lived access token and a single-use refresh token. Unknown email<br/>and wrong password return the identical error, so accounts cannot be enumerated.",
+                "operationId": "auth_login_login_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    }
+                },
+                "summary": "Exchange credentials for tokens",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "description": "<br/>Invalidates both the access and the refresh token. Returns 204 with no body.",
+                "operationId": "auth_logout_logout_post",
+                "responses": {
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Revoke the current session",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "operationId": "auth_me_me_get",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "The authenticated user",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "<br/>Send the refresh token as the bearer token. It is single-use. Presenting an<br/>already-used refresh token revokes the whole session (`token_revoked`).",
+                "operationId": "auth_refresh_refresh_post",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Rotate tokens",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "<br/>Emails are case-insensitive. Passwords are 8 to 128 characters and are stored<br/>hashed (Argon2id).",
+                "operationId": "auth_register_register_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "409": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Conflict"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    }
+                },
+                "summary": "Create a user",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/transactions/{transaction_id}": {
+            "get": {
+                "description": "<br/>Returns only your side of the transaction. Returns 404 if you were not a party to it.",
+                "operationId": "history_transaction_detail_transactions__transaction_id__get",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "transaction_id",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "title": "Transaction Id",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionDetailOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Transaction detail",
+                "tags": [
+                    "history"
+                ]
+            }
+        },
+        "/transfers": {
+            "post": {
+                "description": "<br/>The source must be one of your accounts; the destination can be any customer<br/>account. Debit and credit commit atomically. Returns 404 if the source is not<br/>yours or the destination does not exist. Safe to retry with an `Idempotency-Key`.",
+                "operationId": "transfers_create_transfer_transfers_post",
+                "parameters": [
+                    {
+                        "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                        "in": "header",
+                        "name": "Idempotency-Key",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "default": null,
+                            "description": "Unique key (up to 255 characters, e.g. a UUID) that makes retries safe. Retrying with the same key returns the original response.",
+                            "title": "Idempotency-Key"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TransferBody"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransferOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unprocessable Entity"
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Service Unavailable"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": []
+                    }
+                ],
+                "summary": "Transfer money between accounts",
+                "tags": [
+                    "transfers"
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "auth"
+        },
+        {
+            "name": "accounts"
+        },
+        {
+            "name": "transfers"
+        },
+        {
+            "name": "history"
+        }
+    ]
+}
