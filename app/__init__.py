@@ -1,7 +1,9 @@
 from flask_openapi3 import Info, OpenAPI
 
-from app import models  # noqa: F401  (registers models with SQLAlchemy/Alembic)
+from app import models, tasks  # noqa: F401  (register models and Celery tasks)
 from app.api import register_blueprints
+from app.celery_app import init_celery
+from app.cli import register_cli
 from app.config import Config
 from app.errors import (
     register_error_handlers,
@@ -26,8 +28,10 @@ def create_app(config_object=None):
     migrate.init_app(app, db)
     redis_ext.init_app(app)
     jwt.init_app(app)
+    init_celery(app)
     register_error_handlers(app)
     register_jwt_error_handlers(jwt)
     register_jwt_revocation(jwt)
     register_blueprints(app)
+    register_cli(app)
     return app

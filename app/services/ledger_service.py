@@ -8,7 +8,7 @@ from sqlalchemy.exc import OperationalError
 
 from app.errors import InsufficientFundsError, ServiceBusyError
 from app.extensions import db
-from app.models import Account, LedgerEntry, Transaction
+from app.models import Account, LedgerEntry, OutboxEvent, Transaction
 
 SETTLEMENT = "SETTLEMENT"
 
@@ -84,7 +84,8 @@ def _lock_accounts(ids: list[uuid.UUID]) -> dict[uuid.UUID, Account]:
 
 def post_transaction(txn_type: str, entries: list[Entry], description: str | None = None) -> Transaction:
     """Post a balanced set of entries. The ONLY code that writes balances.
-    Never commits: the caller owns the transaction boundary."""
+    Also writes the outbox event, in the same transaction, so a posting and its
+    event exist together or not at all. Never commits: the caller owns the transaction."""
     _validate(entries)
 
     ids = sorted({e.account_id for e in entries})
@@ -119,6 +120,27 @@ def post_transaction(txn_type: str, entries: list[Entry], description: str | Non
                 balance_after=new_balance,
             )
         )
+
+    # Phase 3: the outbox event, atomic with the money.
+    db.session.add(
+        OutboxEvent(
+            event_type="transaction.posted",
+            payload={
+                "transaction_id": str(txn.id),
+                "type": txn_type,
+                "entries": [
+                    {
+                        "account_id": str(account.id),
+                        "owner_id": str(account.owner_id) if account.owner_id else None,
+                        "direction": e.direction,
+                        "amount": e.amount,
+                        "balance_after": new_balance,
+                    }
+                    for account, e, new_balance in plan
+                ],
+            },
+        )
+    )
     return txn
 
 
