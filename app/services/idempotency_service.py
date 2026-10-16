@@ -81,7 +81,7 @@ def run(user_id: uuid.UUID, key: str, request_hash: str, operation, status: int 
             raise IdempotencyKeyReuseError(
                 "This Idempotency-Key was already used with a different request"
             )
-        if existing.response_body is None:  # cannot normally happen; fail safe
+        if existing.response_body is None:  # pragma: no cover
             raise ServiceBusyError("A request with this key is still being processed")
         return Outcome(existing.response_body, existing.response_status, replayed=True)
 
