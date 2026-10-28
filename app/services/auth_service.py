@@ -22,7 +22,7 @@ def register_user(email: str, username: str, password: str) -> User:
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        raise ConflictError("Email or username already registered")
+        raise ConflictError("Email or username already registered") from None
     return user
 
 

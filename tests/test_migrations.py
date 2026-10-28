@@ -7,7 +7,14 @@ from sqlalchemy import inspect, text
 from app.extensions import db
 
 MIGRATIONS = str(Path(__file__).resolve().parent.parent / "migrations")
-TABLES = {"users", "accounts", "transactions", "ledger_entries", "idempotency_keys", "outbox_events"}
+TABLES = {
+    "users",
+    "accounts",
+    "transactions",
+    "ledger_entries",
+    "idempotency_keys",
+    "outbox_events",
+}
 
 
 def test_models_and_migrations_agree(app):

@@ -57,9 +57,7 @@ def create_account(body: CreateAccountBody):
 def list_accounts():
     """List your accounts"""
     accounts = account_service.list_accounts(current_user_id())
-    return {
-        "items": [AccountOut.model_validate(a).model_dump(mode="json") for a in accounts]
-    }
+    return {"items": [AccountOut.model_validate(a).model_dump(mode="json") for a in accounts]}
 
 
 @bp.get(

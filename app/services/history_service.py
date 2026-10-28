@@ -21,9 +21,9 @@ def decode_cursor(cursor: str) -> int:
         padded = cursor + "=" * (-len(cursor) % 4)
         entry_id = json.loads(base64.urlsafe_b64decode(padded))["id"]
     except (ValueError, KeyError, TypeError):
-        raise InvalidCursorError("Invalid cursor")
+        raise InvalidCursorError("Invalid cursor") from None
     if not isinstance(entry_id, int) or isinstance(entry_id, bool) or entry_id <= 0:
-        raise InvalidCursorError("Invalid cursor")
+        raise InvalidCursorError("Invalid cursor") from None
     return entry_id
 
 

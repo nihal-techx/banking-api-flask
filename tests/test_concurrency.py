@@ -31,9 +31,7 @@ def open_account(client, headers):
 
 
 def deposit(client, headers, account_id, amount):
-    return client.post(
-        f"/accounts/{account_id}/deposits", json={"amount": amount}, headers=headers
-    )
+    return client.post(f"/accounts/{account_id}/deposits", json={"amount": amount}, headers=headers)
 
 
 def test_concurrent_withdrawals_never_overdraw(db_session, run_concurrently):
@@ -145,8 +143,13 @@ def test_hot_account_vs_independent_rows_throughput(db_session, run_concurrently
 
     hot = timed([lambda u=u, s=s: money_service.deposit(u, s, 100) for u, s in zip(users, sources)])
     independent = timed(
-        [lambda u=u, s=s, d=d: money_service.transfer(u, s, d, 100) for u, s, d in zip(users, sources, dests)]
+        [
+            lambda u=u, s=s, d=d: money_service.transfer(u, s, d, 100)
+            for u, s, d in zip(users, sources, dests)
+        ]
     )
-    print(f"\n{n} deposits (all lock SETTLEMENT): {hot:.2f}s | {n} independent transfers: {independent:.2f}s")
+    print(
+        f"\n{n} deposits (all lock SETTLEMENT): {hot:.2f}s | {n} independent transfers: {independent:.2f}s"
+    )
 
     assert ledger_service.reconcile() == CLEAN

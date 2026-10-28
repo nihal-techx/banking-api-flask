@@ -44,11 +44,15 @@ def _settle(txn_type, owner_id, account_id, customer_direction, amount, commit) 
     return _entry_for(txn, account_id)
 
 
-def deposit(owner_id: uuid.UUID, account_id: uuid.UUID, amount: int, commit: bool = True) -> LedgerEntry:
+def deposit(
+    owner_id: uuid.UUID, account_id: uuid.UUID, amount: int, commit: bool = True
+) -> LedgerEntry:
     return _settle("deposit", owner_id, account_id, "credit", amount, commit)
 
 
-def withdraw(owner_id: uuid.UUID, account_id: uuid.UUID, amount: int, commit: bool = True) -> LedgerEntry:
+def withdraw(
+    owner_id: uuid.UUID, account_id: uuid.UUID, amount: int, commit: bool = True
+) -> LedgerEntry:
     return _settle("withdrawal", owner_id, account_id, "debit", amount, commit)
 
 

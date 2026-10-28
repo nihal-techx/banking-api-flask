@@ -15,9 +15,7 @@ def _remaining(exp: int) -> int:
 
 def consume_token(jti: str, exp: int) -> bool:
     """Atomically mark a token as used. True only for the first caller."""
-    return bool(
-        redis_ext.client.set(f"revoked:jti:{jti}", "1", nx=True, ex=_remaining(exp))
-    )
+    return bool(redis_ext.client.set(f"revoked:jti:{jti}", "1", nx=True, ex=_remaining(exp)))
 
 
 def revoke_family(fid: str) -> None:

@@ -12,9 +12,7 @@ class RedisExtension:
     client: redis.Redis | None = None
 
     def init_app(self, app):
-        self.client = redis.Redis.from_url(
-            app.config["REDIS_URL"], decode_responses=True
-        )
+        self.client = redis.Redis.from_url(app.config["REDIS_URL"], decode_responses=True)
 
 
 redis_ext = RedisExtension()

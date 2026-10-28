@@ -58,9 +58,9 @@ def account_statement(path: AccountPath, query: StatementQuery):
     rows, next_cursor = history_service.get_statement(
         current_user_id(), path.account_id, query.limit, query.cursor
     )
-    return StatementOut(
-        items=[to_item(row) for row in rows], next_cursor=next_cursor
-    ).model_dump(mode="json")
+    return StatementOut(items=[to_item(row) for row in rows], next_cursor=next_cursor).model_dump(
+        mode="json"
+    )
 
 
 @bp.get(

@@ -34,9 +34,7 @@ def transfer(client, headers, from_id, to_id, amount):
 
 
 def statement(client, headers, account_id, **params):
-    return client.get(
-        f"/accounts/{account_id}/transactions", query_string=params, headers=headers
-    )
+    return client.get(f"/accounts/{account_id}/transactions", query_string=params, headers=headers)
 
 
 def walk(client, headers, account_id, limit):

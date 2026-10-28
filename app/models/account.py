@@ -41,8 +41,6 @@ class Account(db.Model):
     system_code: Mapped[str | None] = mapped_column(String(50))
     balance: Mapped[int] = mapped_column(BigInteger, default=0, server_default="0")
     currency: Mapped[str] = mapped_column(String(3), default="INR", server_default="INR")
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     owner: Mapped[Optional["User"]] = relationship(back_populates="accounts")
