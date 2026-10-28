@@ -10,9 +10,7 @@ from app.extensions import db
 
 class IdempotencyKey(db.Model):
     __tablename__ = "idempotency_keys"
-    __table_args__ = (
-        UniqueConstraint("user_id", "key", name="uq_idempotency_keys_user_key"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "key", name="uq_idempotency_keys_user_key"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))

@@ -32,9 +32,7 @@ def test_account_owner_must_match_type(db_session, account_type, has_owner, syst
         db_session.add(user)
         db_session.flush()
         owner_id = user.id
-    db_session.add(
-        Account(account_type=account_type, owner_id=owner_id, system_code=system_code)
-    )
+    db_session.add(Account(account_type=account_type, owner_id=owner_id, system_code=system_code))
     with pytest.raises(IntegrityError):
         db_session.flush()
 

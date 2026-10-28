@@ -17,7 +17,9 @@ def deposit(client, headers, account_id, amount):
 
 
 def withdraw(client, headers, account_id, amount):
-    return client.post(f"/accounts/{account_id}/withdrawals", json={"amount": amount}, headers=headers)
+    return client.post(
+        f"/accounts/{account_id}/withdrawals", json={"amount": amount}, headers=headers
+    )
 
 
 def count(db_session, model):
@@ -89,4 +91,6 @@ def test_invalid_amounts_rejected(client, signup, amount):
 def test_money_endpoints_require_auth(client):
     account_id = uuid.uuid4()
     assert client.post(f"/accounts/{account_id}/deposits", json={"amount": 100}).status_code == 401
-    assert client.post(f"/accounts/{account_id}/withdrawals", json={"amount": 100}).status_code == 401
+    assert (
+        client.post(f"/accounts/{account_id}/withdrawals", json={"amount": 100}).status_code == 401
+    )

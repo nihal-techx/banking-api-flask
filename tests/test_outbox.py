@@ -30,9 +30,7 @@ def open_account(client, headers):
 
 def deposit(client, headers, account_id, amount, key=None):
     merged = {**headers, **({"Idempotency-Key": key} if key else {})}
-    return client.post(
-        f"/accounts/{account_id}/deposits", json={"amount": amount}, headers=merged
-    )
+    return client.post(f"/accounts/{account_id}/deposits", json={"amount": amount}, headers=merged)
 
 
 def withdraw(client, headers, account_id, amount):
@@ -178,10 +176,20 @@ def test_messages_format_money_without_floats(amount, expected):
     payload = {
         "type": "deposit",
         "entries": [
-            {"account_id": "x-1234", "owner_id": "user-1", "direction": "credit",
-             "amount": amount, "balance_after": amount},
-            {"account_id": "sys-0000", "owner_id": None, "direction": "debit",
-             "amount": amount, "balance_after": -amount},
+            {
+                "account_id": "x-1234",
+                "owner_id": "user-1",
+                "direction": "credit",
+                "amount": amount,
+                "balance_after": amount,
+            },
+            {
+                "account_id": "sys-0000",
+                "owner_id": None,
+                "direction": "debit",
+                "amount": amount,
+                "balance_after": -amount,
+            },
         ],
     }
     messages = build_messages(payload)

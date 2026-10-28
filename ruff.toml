@@ -1,0 +1,15 @@
+line-length = 100
+target-version = "py312"
+src = ["."]
+extend-exclude = ["migrations"]
+
+[lint]
+select = ["E", "F", "I", "B"]
+ignore = [
+    "E501",  # line length is the formatter's job
+    "B905",  # zip(strict=) is not needed: our tests zip lists of different lengths on purpose
+]
+[lint.per-file-ignores]
+# SQLAlchemy resolves these string forward references through its model registry at
+# runtime, so the names are intentionally not imported.
+"app/models/*" = ["F821"]

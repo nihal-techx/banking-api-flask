@@ -82,7 +82,9 @@ def _lock_accounts(ids: list[uuid.UUID]) -> dict[uuid.UUID, Account]:
     return {account.id: account for account in rows}
 
 
-def post_transaction(txn_type: str, entries: list[Entry], description: str | None = None) -> Transaction:
+def post_transaction(
+    txn_type: str, entries: list[Entry], description: str | None = None
+) -> Transaction:
     """Post a balanced set of entries. The ONLY code that writes balances.
     Also writes the outbox event, in the same transaction, so a posting and its
     event exist together or not at all. Never commits: the caller owns the transaction."""

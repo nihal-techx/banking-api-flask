@@ -48,7 +48,9 @@ class TransactionOut(BaseModel):
     type: str = Field(description="deposit, withdrawal or transfer.")
     account_id: uuid.UUID
     amount: int = Field(description=AMOUNT_DESCRIPTION)
-    balance_after: int = Field(description="Balance of this account right after the transaction, in paise.")
+    balance_after: int = Field(
+        description="Balance of this account right after the transaction, in paise."
+    )
     created_at: datetime
 
 
@@ -57,5 +59,7 @@ class TransferOut(BaseModel):
     from_account_id: uuid.UUID
     to_account_id: uuid.UUID
     amount: int = Field(description=AMOUNT_DESCRIPTION)
-    balance_after: int = Field(description="The sender's balance right after the transfer, in paise.")
+    balance_after: int = Field(
+        description="The sender's balance right after the transfer, in paise."
+    )
     created_at: datetime

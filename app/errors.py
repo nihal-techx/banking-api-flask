@@ -53,7 +53,6 @@ class InvalidCursorError(AppError):
     code = "invalid_cursor"
 
 
-
 def _error_response(status, code, message, details=None):
     response = jsonify(error={"code": code, "message": message, "details": details or []})
     response.status_code = status
@@ -81,9 +80,7 @@ def register_error_handlers(app):
 
     @app.errorhandler(redis.RedisError)
     def handle_redis_error(err):
-        return _error_response(
-            503, "service_unavailable", "Service temporarily unavailable"
-        )
+        return _error_response(503, "service_unavailable", "Service temporarily unavailable")
 
 
 def register_jwt_error_handlers(jwt):
@@ -113,6 +110,3 @@ def register_jwt_revocation(jwt):
         if jwt_payload.get("type") == "refresh" and jwt_payload.get("fid"):
             token_service.revoke_family(jwt_payload["fid"])
         return _error_response(401, "token_revoked", "Token has been revoked")
-
-
-
