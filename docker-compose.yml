@@ -1,3 +1,14 @@
+x-app: &app
+  build: .
+  image: banking-api:dev
+  profiles: ["app"]
+  environment:
+    DATABASE_URL: postgresql+psycopg://bank:bank@postgres:5432/banking
+    REDIS_URL: redis://redis:6379/0
+    RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672//
+    SECRET_KEY: dev-secret-change-me
+    JWT_SECRET_KEY: dev-only-jwt-secret-change-me-32-bytes-min
+
 services:
   postgres:
     image: postgres:15
@@ -7,14 +18,67 @@ services:
       POSTGRES_DB: banking
     ports: ["5434:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank -d banking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7
     ports: ["6381:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   rabbitmq:
     image: rabbitmq:3-management
     ports: ["5673:5672", "15673:15672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  migrate:
+    <<: *app
+    command: ["flask", "db", "upgrade"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *app
+    ports: ["8000:8000"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    <<: *app
+    command: ["celery", "-A", "celery_worker.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  relay:
+    <<: *app
+    command: ["flask", "outbox-relay"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   pgdata:

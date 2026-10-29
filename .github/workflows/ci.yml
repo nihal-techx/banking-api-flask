@@ -60,8 +60,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements.txt
-      - run: pip install -r requirements.txt
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
       - name: Run tests (fails under the coverage threshold in .coveragerc)
         run: pytest --cov --cov-report=term-missing --cov-report=html -q
       - name: Upload coverage report
@@ -70,3 +72,35 @@ jobs:
         with:
           name: coverage-html
           path: htmlcov
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: banking-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke-test the image
+        run: |
+          docker run -d --name api -p 8000:8000 \
+            -e DATABASE_URL=postgresql+psycopg://x:x@127.0.0.1:5432/x \
+            -e REDIS_URL=redis://127.0.0.1:6379/0 \
+            -e RABBITMQ_URL=amqp://guest:guest@127.0.0.1:5672// \
+            banking-api:ci
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/health > /dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:8000/health
+          echo
+          # No database is reachable here, so readiness must say so (and liveness must not care).
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/ready)" = "503"
+          curl -sf http://127.0.0.1:8000/openapi/openapi.json > /dev/null
+          # The container must not run as root.
+          test "$(docker exec api id -u)" = "10001"
+          docker logs api
