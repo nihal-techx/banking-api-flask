@@ -12,7 +12,8 @@ FROM python:3.12-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH" \
-    FLASK_APP=wsgi
+    FLASK_APP=wsgi \
+    APP_ENV=production
 RUN useradd --create-home --uid 10001 appuser
 COPY --from=builder /opt/venv /opt/venv
 WORKDIR /srv/app

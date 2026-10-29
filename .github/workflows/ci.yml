@@ -90,17 +90,24 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Smoke-test the image
         run: |
-          docker run -d --name api -p 8000:8000 \
-            -e DATABASE_URL=postgresql+psycopg://x:x@127.0.0.1:5432/x \
-            -e REDIS_URL=redis://127.0.0.1:6379/0 \
-            -e RABBITMQ_URL=amqp://guest:guest@127.0.0.1:5672// \
+          COMMON="-e DATABASE_URL=postgresql+psycopg://x:x@127.0.0.1:5432/x -e REDIS_URL=redis://127.0.0.1:6379/0 -e RABBITMQ_URL=amqp://guest:guest@127.0.0.1:5672//"
+          # 1. Secure by default: the image must refuse to start with the development secrets.
+          if docker run --rm $COMMON banking-api:ci python -c "from app import create_app; create_app()"; then
+            echo "image booted with default secrets"
+            exit 1
+          fi
+          # 2. With real secrets it starts. Liveness works, readiness reports the missing database.
+          docker run -d --name api -p 8000:8000 $COMMON \
+            -e SECRET_KEY=ci-only-secret-key-0123456789abcdef \
+            -e JWT_SECRET_KEY=ci-only-jwt-secret-0123456789abcdef \
             banking-api:ci
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/health > /dev/null && break; sleep 1; done
           curl -sf http://127.0.0.1:8000/health
           echo
-          # No database is reachable here, so readiness must say so (and liveness must not care).
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/ready)" = "503"
-          curl -sf http://127.0.0.1:8000/openapi/openapi.json > /dev/null
-          # The container must not run as root.
+          curl -sf -H "X-Request-ID: ci-smoke-0001" http://127.0.0.1:8000/openapi/openapi.json > /dev/null
+          # 3. Production logs are structured and carry the request id.
+          docker logs api 2>&1 | grep -q '"request_id": "ci-smoke-0001"'
+          # 4. The container must not run as root.
           test "$(docker exec api id -u)" = "10001"
           docker logs api

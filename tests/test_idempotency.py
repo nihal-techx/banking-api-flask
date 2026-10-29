@@ -175,9 +175,10 @@ def test_key_and_money_commit_together_or_not_at_all(client, signup, db_session,
         raise RuntimeError("process dies right before the commit")
 
     monkeypatch.setattr(idempotency_service, "_store_response", crash)
-    with pytest.raises(RuntimeError):
-        deposit(client, alice, a, 5_000, key="k-crash")
+    crashed = deposit(client, alice, a, 5_000, key="k-crash")
     monkeypatch.undo()
+    assert crashed.status_code == 500
+    assert crashed.get_json()["error"]["code"] == "internal_error"
 
     assert balance(client, alice, a) == 0
     assert count(db_session, Transaction) == 0

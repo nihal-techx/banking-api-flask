@@ -8,6 +8,8 @@ x-app: &app
     RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672//
     SECRET_KEY: dev-secret-change-me
     JWT_SECRET_KEY: dev-only-jwt-secret-change-me-32-bytes-min
+    APP_ENV: development
+    LOG_FORMAT: json
 
 services:
   postgres:

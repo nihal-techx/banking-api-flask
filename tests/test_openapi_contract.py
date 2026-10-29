@@ -115,6 +115,7 @@ def test_every_error_code_is_documented():
         "token_expired",
         "token_revoked",
         "service_unavailable",
+        "internal_error",
     }
     missing = sorted(code for code in codes if f"`{code}`" not in API_DESCRIPTION)
     assert missing == []
