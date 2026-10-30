@@ -110,3 +110,12 @@ def register_jwt_revocation(jwt):
         if jwt_payload.get("type") == "refresh" and jwt_payload.get("fid"):
             token_service.revoke_family(jwt_payload["fid"])
         return _error_response(401, "token_revoked", "Token has been revoked")
+
+
+class RateLimitedError(AppError):
+    status_code = 429
+    code = "rate_limited"
+
+    def __init__(self, retry_after: int):
+        super().__init__("Too many requests, slow down")
+        self.retry_after = retry_after

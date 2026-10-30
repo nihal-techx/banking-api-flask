@@ -2,7 +2,18 @@ import logging
 
 from flask import g, jsonify
 
+from app.errors import RateLimitedError
+
 logger = logging.getLogger("app.error_handlers")
+
+
+def register_rate_limit_handler(app):
+    @app.errorhandler(RateLimitedError)
+    def handle_rate_limited(err):
+        response = jsonify(error={"code": err.code, "message": err.message, "details": []})
+        response.status_code = err.status_code
+        response.headers["Retry-After"] = str(err.retry_after)
+        return response
 
 
 def register_unexpected_error_handler(app):

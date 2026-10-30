@@ -26,6 +26,12 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
     LEDGER_LOCK_TIMEOUT_MS = 3000
+    RATE_LIMIT_ENABLED = env_bool("RATE_LIMIT_ENABLED", True)
+    RATE_LIMIT_WINDOW_SECONDS = 60
+    RATE_LIMIT_LOGIN_ATTEMPTS = 5  # per client IP and email
+    RATE_LIMIT_LOGIN_IP_ATTEMPTS = 30  # per client IP, across all emails
+    RATE_LIMIT_REGISTER_IP_ATTEMPTS = 10
+    TRUSTED_PROXY_COUNT = int(os.getenv("TRUSTED_PROXY_COUNT", "0"))
     # Required in production, optional elsewhere unless overridden.
     IDEMPOTENCY_KEY_REQUIRED = env_bool("IDEMPOTENCY_KEY_REQUIRED", APP_ENV == "production")
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

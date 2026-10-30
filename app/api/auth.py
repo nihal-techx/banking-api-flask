@@ -4,35 +4,38 @@ from flask_openapi3 import APIBlueprint, Tag
 from app.api.docs import api_responses
 from app.errors import AuthenticationError
 from app.schemas.auth import LoginBody, RegisterBody, TokenOut, UserOut
-from app.services import auth_service, token_service
+from app.services import auth_service, rate_limit_service, token_service
 
 bp = APIBlueprint("auth", __name__, url_prefix="/auth", abp_tags=[Tag(name="auth")])
 
 
 @bp.post(
     "/register",
-    responses=api_responses({"201": UserOut}, "409", "422", protected=False),
+    responses=api_responses({"201": UserOut}, "409", "429", protected=False),
 )
 def register(body: RegisterBody):
     """Create a user
 
     Emails are case-insensitive. Passwords are 8 to 128 characters and are stored
-    hashed (Argon2id).
+    hashed (Argon2id). Rate-limited per client IP.
     """
+    rate_limit_service.check_register()
     user = auth_service.register_user(body.email, body.username, body.password)
     return UserOut.model_validate(user).model_dump(mode="json"), 201
 
 
 @bp.post(
     "/login",
-    responses=api_responses({"200": TokenOut}, "401", "422", protected=False),
+    responses=api_responses({"200": TokenOut}, "401", "429", protected=False),
 )
 def login(body: LoginBody):
     """Exchange credentials for tokens
 
     Returns a short-lived access token and a single-use refresh token. Unknown email
     and wrong password return the identical error, so accounts cannot be enumerated.
+    Rate-limited per client IP and per IP and email: wait for `Retry-After` seconds.
     """
+    rate_limit_service.check_login(body.email)
     user = auth_service.authenticate(body.email, body.password)
     return auth_service.issue_tokens(user).model_dump(), 200
 

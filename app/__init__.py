@@ -6,7 +6,10 @@ from app.api.docs import API_DESCRIPTION
 from app.celery_app import init_celery
 from app.cli import register_cli
 from app.config import Config, validate_production_config
-from app.error_handlers import register_unexpected_error_handler
+from app.error_handlers import (
+    register_rate_limit_handler,
+    register_unexpected_error_handler,
+)
 from app.errors import (
     register_error_handlers,
     register_jwt_error_handlers,
@@ -44,6 +47,7 @@ def create_app(config_object=None):
     init_celery(app)
     register_request_hooks(app)
     register_error_handlers(app)
+    register_rate_limit_handler(app)
     register_unexpected_error_handler(app)
     register_jwt_error_handlers(jwt)
     register_jwt_revocation(jwt)

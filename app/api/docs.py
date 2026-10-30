@@ -39,6 +39,7 @@ reporting a problem.
 | 404 | `not_found` | The resource does not exist or is not yours. The two are indistinguishable by design. |
 | 409 | `conflict` | The email or username is already registered. |
 | 422 | `validation_error`, `insufficient_funds`, `idempotency_key_reuse`, `invalid_cursor` | The request is well-formed but cannot be processed. |
+| 429 | `rate_limited` | Too many attempts. Wait the number of seconds in the `Retry-After` header, then retry. |
 | 500 | `internal_error` | An unexpected server error. Report persistent failures with the `request_id`. |
 | 503 | `busy`, `service_unavailable` | Temporary. Retry with exponential backoff. |
 """
