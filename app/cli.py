@@ -1,10 +1,11 @@
 import logging
 import time
+from datetime import timedelta
 
 import click
 
 from app.extensions import db
-from app.services import outbox_service
+from app.services import maintenance_service, outbox_service
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +53,22 @@ def register_cli(app):
                 return
             if count == 0:
                 time.sleep(interval)
+
+    @app.cli.command("purge")
+    @click.option(
+        "--dry-run", is_flag=True, help="Report what would be deleted without deleting anything."
+    )
+    def purge(dry_run):
+        """Delete expired idempotency keys and old, already-published outbox events."""
+        key_age = timedelta(hours=app.config["IDEMPOTENCY_KEY_RETENTION_HOURS"])
+        event_age = timedelta(days=app.config["OUTBOX_RETENTION_DAYS"])
+        batch_size = app.config["PURGE_BATCH_SIZE"]
+        if dry_run:
+            keys = maintenance_service.count_expired_idempotency_keys(key_age)
+            events = maintenance_service.count_purgeable_outbox_events(event_age)
+            click.echo(f"would delete {keys} idempotency key(s) and {events} outbox event(s)")
+            return
+        keys = maintenance_service.purge_idempotency_keys(key_age, batch_size)
+        events = maintenance_service.purge_outbox_events(event_age, batch_size)
+        logger.info("purge complete", extra={"idempotency_keys": keys, "outbox_events": events})
+        click.echo(f"deleted {keys} idempotency key(s) and {events} outbox event(s)")

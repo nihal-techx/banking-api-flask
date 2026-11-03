@@ -19,6 +19,7 @@ Endpoints that move money accept an `Idempotency-Key` header (any unique string 
 original response, with the header `Idempotent-Replayed: true`, and never moves money
 twice. Reusing a key with a different request returns `idempotency_key_reuse`. A request
 that fails (for example with `insufficient_funds`) does not consume its key.
+Keys are remembered for 24 hours, after which the same key counts as new.
 After a timeout or a `503`, retry the same request with the same key, using
 exponential backoff.
 
